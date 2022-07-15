@@ -22,13 +22,17 @@ class PepParsePipeline:
 
     def close_spider(self, spider):
         self.status_summary['total'] = sum(self.status_summary.values())
-        self.write_to_csv(FILE_NAME, self.status_summary)
+        self.write_to_csv(
+            filename=FILE_NAME,
+            dict_to_save=self.status_summary,
+            header=('Статус', 'Количество')
+        )
 
-    def write_to_csv(self, filename: str, dict_to_save: dict, ):
+    def write_to_csv(self, filename: str, dict_to_save: dict, header: tuple):
         file = filename + str(datetime.now().strftime(DATE_FORMAT)) + '.csv'
         full_file_name = os.path.join(BASE_DIR, file)
         with open(full_file_name, mode='w', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(('Статус', 'Количество'))
+            writer.writerow(header)
             for row in dict_to_save.items():
                 writer.writerow(row)
