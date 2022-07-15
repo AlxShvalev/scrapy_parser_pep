@@ -6,22 +6,28 @@ from pep_parse.items import PepParseItem
 class PepSpider(scrapy.Spider):
     name = 'pep'
     allowed_domains = ['peps.python.org']
-    start_urls = ['http://peps.python.org/']
+    start_urls = ['https://peps.python.org/']
 
     def parse(self, response):
-        table = response.css('section#numerical-index')
-        pep_list = table.css('a[class="pep reference internal"]')
-        for pep_url in pep_list:
-            number = pep_url.css('./text()').get()
-            yield response.follow(pep_url, callback=self.parse_pep)
+        """Парсит страницу PEP-0, переходит по ссылкам каждого PEP."""
+        section_selector = response.css('section#numerical-index')
+        tbody_selector = section_selector.css('tbody')
+        tr_selector_list = tbody_selector.css('tr')
+        for tr in tr_selector_list:
+            a_selector_list = tr.css('a')
+            a_selector = a_selector_list[0]
+            number = a_selector.xpath('./text()').get()
+            name = a_selector_list[1].xpath('./text()').get()
+            yield response.follow(
+                a_selector,
+                callback=self.parse_pep,
+                cb_kwargs={'number': number, 'name': name}
+            )
 
-    def parse_pep(self, response):
+    def parse_pep(self, response, number, name):
+        """Парсит страницу PEP, получает статус PEP."""
         section = response.css('section#pep-content')
         status = section.css('dt:contains("Status") + dd::text').get()
-        head = section.css('h1::text').get()
-        head_split = head.split(' – ')
-        number = head_split[0].split()[-1].strip()
-        name = head_split[1].strip()
         yield PepParseItem(
             number=number,
             name=name,

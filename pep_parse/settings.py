@@ -86,3 +86,11 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+FEEDS = {
+    'results/pep_%(time)s.csv': {
+       'format': 'csv',
+       'fields': ['number', 'name', 'status'],
+       'overwrite': True,
+    }
+}
