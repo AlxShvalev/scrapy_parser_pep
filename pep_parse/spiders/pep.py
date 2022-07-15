@@ -14,20 +14,21 @@ class PepSpider(scrapy.Spider):
         tbody_selector = section_selector.css('tbody')
         tr_selector_list = tbody_selector.css('tr')
         for tr in tr_selector_list:
-            a_selector_list = tr.css('a')
-            a_selector = a_selector_list[0]
-            number = a_selector.xpath('./text()').get()
-            name = a_selector_list[1].xpath('./text()').get()
+            pep_link = tr.css('a').attrib['href']
             yield response.follow(
-                a_selector,
+                pep_link,
                 callback=self.parse_pep,
-                cb_kwargs={'number': number, 'name': name}
             )
 
-    def parse_pep(self, response, number, name):
+    def parse_pep(self, response):
         """Парсит страницу PEP, получает статус PEP."""
         section = response.css('section#pep-content')
-        status = section.css('dt:contains("Status") + dd::text').get()
+        h1 = section.css('h1::text').get()
+        h1_to_list = h1.split(' – ')
+        pep_num = h1_to_list[0].strip().split()
+        number = pep_num[1].strip()
+        name = h1_to_list[1].strip()
+        status = section.css('dt:contains("Status") + dd::text').get().strip()
         yield PepParseItem(
             number=number,
             name=name,

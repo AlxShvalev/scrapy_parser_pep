@@ -16,6 +16,7 @@ class PepParsePipeline:
         pass
 
     def process_item(self, item, spider):
+        """Суммирует данные по статусу"""
         status = item.get('status')
         self.status_summary[status] = self.status_summary.get(status, 0) + 1
         return item
@@ -36,5 +37,4 @@ class PepParsePipeline:
         with open(full_file_name, mode='w', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(header)
-            for row in dict_to_save.items():
-                writer.writerow(row)
+            writer.writerows(dict_to_save.items())
