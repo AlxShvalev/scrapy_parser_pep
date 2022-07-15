@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 BASE_DIR = 'results/'
-FILE_NAME = 'status_summary_'
+FILE_NAME = 'status_summary'
 DATE_FORMAT = '%Y-%m-%d_%H-%M-%S'
 
 
@@ -29,7 +29,13 @@ class PepParsePipeline:
         )
 
     def write_to_csv(self, filename: str, dict_to_save: dict, header: tuple):
-        file = filename + str(datetime.now().strftime(DATE_FORMAT)) + '.csv'
+        """Записывает файл filename_datetime_format.csv в BASE_DIR"""
+        file = (
+            filename
+            + '_'
+            + str(datetime.now().strftime(DATE_FORMAT))
+            + '.csv'
+        )
         full_file_name = os.path.join(BASE_DIR, file)
         with open(full_file_name, mode='w', encoding='utf-8') as f:
             writer = csv.writer(f)
